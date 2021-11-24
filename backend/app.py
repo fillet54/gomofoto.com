@@ -1,6 +1,8 @@
+import sys
 import os
 import hashlib
 from wand.image import Image
+import logging
 
 def middleware(f):
     def inner(app):

@@ -1,0 +1,20 @@
+version: "3.7"
+
+services:
+
+  backend:
+    build: ./backend
+    container_name: gomofoto_backend
+    restart: always
+    expose:
+      - 5000
+    volumes:
+       - /var/gomofoto.com/public/images:/opt/site/images
+       - /var/gomofoto.com/public/cache:/opt/site/cache
+
+  nginx:
+    build: ./webserver
+    container_name: gomofoto_webserver
+    restart: always
+    ports:
+      - "80:80"
