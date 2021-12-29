@@ -5,16 +5,10 @@ from middleware import config_middleware, with_middleware
 from utils import not_found_handler
 from image import image_handler
 
-def make_app():
-
-    routes = [
-        GET('/image/*', image_handler)
-    ]
+def make_app(routes, config):
 
     @with_middleware([
-        config_middleware({
-            'IMAGE_ROOT': '/opt/site/images',
-            'CACHE_ROOT': '/opt/site/cache'})
+        config_middleware(config)
     ])
     def app(environ, start_response):
         for route in routes:
@@ -27,7 +21,15 @@ def make_app():
         return not_found_handler(environ, start_response)
     return app
 
-application = make_app()
+routes = [
+    GET('/image/:id', image_handler),
+]
+
+config = {
+    'IMAGE_ROOT': '/opt/site/images',
+}
+
+application = make_app(routes, config)
 
 if __name__ == '__main__':
     from wsgiref.simple_server import make_server

@@ -47,9 +47,9 @@ re_literal = r"(:[^\w*]|[^:*])+"
 def word_group(matcher):
     return matcher.group(1)
 
-def build_route_regex(path):
+def build_route_regex(path, regexs):
     def re_word_action(matcher):
-        return "(%s)" % "[^/,;?]+"
+        return "(%s)" % regexs.get(word_group(matcher), "[^/,;?]+")
     def re_literal_action(matcher):
         return re.escape(matcher.group())
     clauses = [(r"\*",     "(.*?)"),
@@ -85,10 +85,14 @@ class CompiledRoute(object):
 
         return None
 
-def route_compile(path):
+    def __str__(self):
+        return '<CompiledRoute: {}>'.format(self.regex)
+
+def route_compile(path, regexs):
+    regexs = regexs or dict()
     path_keys = find_path_keys(path)
     return CompiledRoute(path, 
-                         build_route_regex(path), 
+                         build_route_regex(path, regexs), 
                          path_keys)
 
 def method_matches (request, method):
@@ -112,8 +116,8 @@ def method_matches (request, method):
     return request_method == method
 
 
-def make_route(method, path, handler):
-    route = route_compile(path)
+def make_route(method, path, handler, regexs=None):
+    route = route_compile(path, regexs)
     def route_matches(environ):
         if method_matches(environ, method):
             route_params = route.matches(environ)
@@ -122,14 +126,30 @@ def make_route(method, path, handler):
                 return handler
     return route_matches
 
-def ANY(path, handler):
-    return make_route("ANY", path, handler)
+def ANY(path, handler, regexs=None):
+    return make_route("ANY", path, handler, regexs)
 
-def GET(path, handler):
-    return make_route("GET", path, handler)
+def GET(path, handler, regexs=None):
+    return make_route("GET", path, handler, regexs)
 
-def POST(path, handler):
-    return make_route("POST", path, handler)
+def POST(path, handler, regexs=None):
+    return make_route("POST", path, handle, regexs)
 
 
+if __name__ == '__main__':
 
+
+    r = route_compile('/image/:id', None)
+
+    print(r)
+
+    m = r.regex.match('/image/asdfasdfasdfasf')
+    print(m)
+
+    p = r.matches(dict(PATH_INFO='/image/123ljjkalsdf234232', REQUEST_METHOD='GET'))
+    print(p)
+
+    rr = GET('/image/:id', 123)
+
+    h = rr(dict(PATH_INFO='/image/123ljjkalsdf234232', REQUEST_METHOD='GET'))
+    print(h)

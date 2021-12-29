@@ -9,8 +9,7 @@ services:
     expose:
       - 5000
     volumes:
-       - /var/gomofoto.com/public/images:/opt/site/images
-       - /var/gomofoto.com/public/cache:/opt/site/cache
+       - /var/gomofoto.com/public/images2:/opt/site/images
 
   nginx:
     build: ./webserver
